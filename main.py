@@ -205,7 +205,7 @@ def transform():
         rotation_matrix=np.array([[scale * math.cos(angle_rad),-math.sin(angle_rad), tx],
                          [math.sin(angle_rad), scale * math.cos(angle_rad), ty],[0,0,1]])
         affine_matrix = rotation_matrix[:2,:3]
-        result = cv2.warpAffine(ui.image, rotation_matrix, (1920, 1080))
+        result = cv2.warpAffine(ui.image, affine_matrix, (1920, 1080))
         cv2.imshow("result",result)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
