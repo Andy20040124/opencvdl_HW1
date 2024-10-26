@@ -1,3 +1,6 @@
+**檔案使用vscode進行開啟，並使用虛擬環境進行運行**
+**若需要使用請於有cv2以及PyQt5之環境下運行**
+
 # import photo
 
 目前的話只有load_image_1 有實際的使用意義，load_image_2還沒有進行功能的賦予
