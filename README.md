@@ -45,15 +45,15 @@ load_image_1 會覆蓋先前輸入進來的圖片，並且有中文的檔名會�
 
 ### Sobel X
 
-透過先轉換成灰階後取出normalized之後的值，並且執行smoothing後選擇**cv2.Sobel(blur,-1,1,0)**，也就是保留垂直的資料
+透過先轉換成灰階後取出normalized之後的值，並且執行smoothing後選擇**([[1,0,-1],[2,0,-2],[1,0,-1]])**，也就是保留垂直的資料來進行轉換，最後針對每一個PIXAL 乘上相對應的乘法矩陣來進行轉換即可
 
 ### Sobel Y
 
-透過先轉換成灰階後取出normalized之後的值，並且執行smoothing後選擇**cv2.Sobel(blur,-1,0,1)**，也就是保留水平的資料
+透過先轉換成灰階後取出normalized之後的值，並且執行smoothing後選擇**([[1,2,1],[0,0,0],[-1,-2,-1]])**，也就是保留垂直的資料來進行轉換，後針對每一個PIXAL 乘上相對應的乘法矩陣來進行轉換即可
 
 ### Combination and Threshold
 
-這邊是主要遇到問題的地方，cv2.Sobel不論是使用cv2.CV_64F或者是-1來進行取值，得到的square root 圖都沒有辦法獲得跟測試影片一樣乾淨的圖片，但是在針對threshold=128 & 28 的時候，可以很明顯的看出有過濾到部分的資料，代表threshold還是有發揮其作用
+先把上面兩個的圖都先抓抓下來，再用一個combine來把每個pixal的值結合在一起，
 
 ### grafient angle
 
@@ -65,4 +65,4 @@ load_image_1 會覆蓋先前輸入進來的圖片，並且有中文的檔名會�
 ### transform
 
 先把所有需要的資料從UI當中利用.text()抓進來使用
-再來先把角度從百分比轉換成rad，最後把rotation 需要的資料全部都放進去matrix(透過把旋轉、縮放以及位移矩陣同時結合計算出一個大的rotation matrix)，並且利用錯誤訊息(M0.rows == 2 && M0.cols == 3)來得知需要把矩陣縮減成 row=2 , col=3 的狀態再去進行warpaffine，最後得到解答
+再來先把角度從百分比轉換成rad，最後把rotation 需要的資料全部都放進去matrix(透過把旋轉、縮放以及位移矩陣同時結合計算出一個大的rotation matrix)，並且利用warp afffine matrix 的講義內容來得知需要把矩陣取需要的值變成 row=2 , col=3 的狀態再去進行warpaffine，最後得到解答

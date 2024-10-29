@@ -11,7 +11,6 @@ import math
 #detect the photo has been uploaded or not
 photo1_upload = False
 photo2_upload = False
-
 #import photo
 def import_photo():
     global photo1_upload, photo2_upload
@@ -131,18 +130,45 @@ def apply_median_blur(x):
 def sobel_x():
     if(photo1_upload):  
         gray = cv2.cvtColor(ui.image, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray, (1,1),0)
-        x_photo = cv2.Sobel(blur,-1,1,0)
-        cv2.imshow("x_photo",x_photo)
-    else:
+        blur = cv2.GaussianBlur(gray, (5,5),0)
+        #create matrix that is full of zero
+        x_photo=np.zeros_like(blur).astype(np.int32)
+        #ready to calculate the pixal 
+        width,height = x_photo.shape
+        # Put in the array
+        x_photo_filter=np.array([[1,0,-1],[2,0,-2],[1,0,-1]])
+        #run every pixal
+        for w in range(width):
+            for h in range(height):
+                for i in range(3):
+                    for j in range(3):
+                        if(w+i>=0 and w+i-1<width and h+j-1>=0 and h+j-1<height):
+                            #every pixal needs to be multiply by the matrix
+                            x_photo[w][h] += blur[w+i-1][h+j-1] * x_photo_filter[i][j]
+        
+        # restrict the value in 0 ~ 255
+        x_photo = np.where(x_photo < 0,x_photo*-1,x_photo)
+        x_photo = np.where(x_photo>255,255,x_photo)
+        cv2.imshow("Sobel_X photo",x_photo.astype(np.uint8))
         print("photo haven't been uploaded")
 
-def sobel_y():
-    if(photo1_upload): 
+def sobel_y():#same as sobel_x
+    if(photo1_upload):  
         gray = cv2.cvtColor(ui.image, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray, (1,1),0)
-        y_photo = cv2.Sobel(blur,-1,0,1)
-        cv2.imshow("y_photo",y_photo)
+        blur = cv2.GaussianBlur(gray, (5,5),0)
+        y_photo=np.zeros_like(blur).astype(np.int32)
+        width,height=y_photo.shape
+        y_photo_filter=np.array([[1,2,1],[0,0,0],[-1,-2,-1]])
+        for w in range(width):
+            for h in range(height):
+                for i in range(3):
+                    for j in range(3):
+                        if(w+i>=0 and w+i-1<width and h+j-1>=0 and h+j-1<height):
+                            y_photo[w][h] += blur[w+i-1][h+j-1] * y_photo_filter[i][j]
+        
+        y_photo = np.where(y_photo < 0,y_photo*-1,y_photo)
+        y_photo = np.where(y_photo>255,255,y_photo)
+        cv2.imshow("Sobel_Y photo",y_photo.astype(np.uint8))
     else:
         print("photo haven't been uploaded")
 
@@ -150,39 +176,85 @@ def comb():
     if(photo1_upload): 
         gray = cv2.cvtColor(ui.image, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (5,5),0)
-        x_photo = cv2.Sobel(blur,-1,1,0)
-        y_photo = cv2.Sobel(blur,-1,0,1)
-        square_pic = (x_photo + y_photo)**0.5
-        normalized = cv2.normalize(square_pic, None, 0, 255, cv2.NORM_MINMAX)
-        _,result = cv2.threshold(normalized, 128, 255, cv2.THRESH_BINARY)
-        _,result2 = cv2.threshold(normalized, 28, 255, cv2.THRESH_BINARY)
-        cv2.imshow("square photo", square_pic)
-        cv2.imshow("threshold=128",result)
-        cv2.imshow("threshold=28",result2)
+        
+        x_photo_filter=np.array([[1,0,-1],[2,0,-2],[1,0,-1]])
+        x_photo=np.zeros_like(blur).astype(np.int32)
+        width,height = x_photo.shape
+        for w in range(width):
+            for h in range(height):
+                for i in range(3):
+                    for j in range(3):
+                        if(w+i>=0 and w+i-1<width and h+j-1>=0 and h+j-1<height):
+                            x_photo[w][h] += blur[w+i-1][h+j-1]*x_photo_filter[i][j]
+        
+        x_photo = np.where(x_photo < 0,x_photo*-1,x_photo)
+        x_photo = np.where(x_photo>255,255,x_photo)
+
+        y_photo_filter=np.array([[1,2,1],[0,0,0],[-1,-2,-1]])
+        y_photo=np.zeros_like(blur).astype(np.int32)
+        width,height=y_photo.shape
+        for w in range(width):
+            for h in range(height):
+                for i in range(3):
+                    for j in range(3):
+                        if(w+i>=0 and w+i-1<width and h+j-1>=0 and h+j-1<height):
+                            y_photo[w][h] += blur[w+i-1][h+j-1]*y_photo_filter[i][j]
+
+        y_photo = np.where(y_photo < 0,y_photo*-1,y_photo)
+        y_photo = np.where(y_photo>255,255,y_photo)
+
+        #combine photo image by using formula
+        combine  = np.zeros_like(y_photo).astype(np.int32)
+        for w in range(width):
+            for h in range(height):
+                combine[w][h] = (x_photo[w][h]**2 + y_photo[w][h]**2)**0.5
+        
+        _,result = cv2.threshold(combine.astype(np.uint8), 128, 255, cv2.THRESH_BINARY)
+        _,result2 = cv2.threshold(combine.astype(np.uint8), 28, 255, cv2.THRESH_BINARY)
+        cv2.imshow("square photo", combine.astype(np.uint8))
+        cv2.imshow("threshold=128",result.astype(np.uint8))
+        cv2.imshow("threshold=28",result2.astype(np.uint8))
     else:
         print("photo haven't been uploaded")
 
 def gradient_angle():
     if (photo1_upload):
-        #according to the below website
-        #https://blog.csdn.net/kouwang9779/article/details/122373778
         gray = cv2.cvtColor(ui.image, cv2.COLOR_BGR2GRAY)
+        blur = cv2.GaussianBlur(gray, (5,5),0)
         
-        sobel_x = cv2.Sobel(gray, cv2.CV_64F, 1, 0)  # X梯度
-        sobel_y = cv2.Sobel(gray, cv2.CV_64F, 0, 1)  # Y梯度
+        x_photo_filter=np.array([[1,0,-1],[2,0,-2],[1,0,-1]])
+        y_photo_filter=np.array([[1,2,1],[0,0,0],[-1,-2,-1]])
 
-        magnitude = (sobel_x**2 + sobel_y**2)**0.5  # 梯度幅度
-        angle = np.arctan2(sobel_y,sobel_x) * 180 / math.pi  # 梯度角度（轉為度數）
+        x_photo=np.zeros_like(blur).astype(np.int32)
+        y_photo=np.zeros_like(blur).astype(np.int32)
         
-        angle[angle < 0] += 360
-        magnitude_display = magnitude.astype(np.uint8)
-        
-        # 5. 生成兩個角度範圍的遮罩
-        mask1 = cv2.inRange(angle, 170, 190)  # 檢測170°-190°之間的像素
-        mask2 = cv2.inRange(angle, 260, 280)  # 檢測260°-280°之間的像素
-        
-        masked_result1 = cv2.bitwise_and(magnitude_display,mask1)
-        masked_result2 = cv2.bitwise_and(magnitude_display,mask2)    
+        width,height = x_photo.shape
+        for w in range(width):
+            for h in range(height):
+                for i in range(3):
+                    for j in range(3):
+                        if(w+i>=0 and w+i-1<width and h+j-1>=0 and h+j-1<height):
+                            x_photo[w][h] += blur[w+i-1][h+j-1]*x_photo_filter[i][j]
+                            y_photo[w][h] += blur[w+i-1][h+j-1]*y_photo_filter[i][j]
+
+        magnitude = np.zeros_like(y_photo).astype(np.int32)
+        #create magnitude to calculate the combine pic
+        for w in range(width):
+            for h in range(height):
+                magnitude[w][h] = (x_photo[w][h]**2 + y_photo[w][h]**2)**0.5
+
+        #calculate angle
+        angle = (np.arctan2(y_photo, x_photo) * 180 / math.pi) % 360
+
+        #create mask 
+        mask1 = cv2.inRange(angle, 170 , 190)  # 檢測170-190
+        mask2 = cv2.inRange(angle, 260 , 280)  # 檢測260-280
+
+        #do the mask
+        masked_result1 = cv2.bitwise_and(magnitude, magnitude, mask=mask1)
+        masked_result2 = cv2.bitwise_and(magnitude, magnitude, mask=mask2)
+        masked_result1=masked_result1.astype(np.uint8)
+        masked_result2=masked_result2.astype(np.uint8)       
 
         cv2.imshow("angle 1 (170~190)", masked_result1)  
         cv2.imshow("angle 2 (260~280)", masked_result2)
@@ -230,4 +302,3 @@ if __name__ == "__main__":
     ui.pushButton.clicked.connect(transform)
     Dialog.show()
     sys.exit(app.exec_())
-    
