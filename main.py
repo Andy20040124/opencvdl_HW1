@@ -46,7 +46,7 @@ def Grayscale():
         cv_gray = cv2.cvtColor(ui.image,cv2.COLOR_BGR2GRAY)
         cv2.imshow('original grayscale',cv_gray)
         b, g, r = cv2.split(ui.image)
-        avg_gray = ((b+g+r)/3).astype(np.uint8)
+        avg_gray = (b/3+g/3+r/3).astype(np.uint8)
         cv2.imshow('average grayscale',avg_gray)
     else:
         print("photo haven't been uploaded")

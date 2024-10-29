@@ -19,7 +19,7 @@ load_image_1 會覆蓋先前輸入進來的圖片，並且有中文的檔名會�
 
 ### Color Transformation
 
-上傳照片之後生成original grayscale, 另一張照片為avg  grayscale,因為 (b/3 + g/3 + r/3)算出來的值跟(r+g+b)/3不同，因此我採取後者的計算方式來進行
+上傳照片之後生成original grayscale, 另一張照片為avg  grayscale,因為 (b/3 + g/3 + r/3)算出來的值跟(r+g+b)/3不同，因此我採取前者的計算方式來進行
 
 ### Color Extraction
 
