@@ -81,8 +81,8 @@ def apply_gaussian_blur(x):
     m = cv2.getTrackbarPos('m size', 'G Blur')
     #cv2.setTrackbarPos('trackbar name', 'window's name')
     kernel = 2 * m + 1  #(2m+1, 2m+1)
-    
-    blurred_image = cv2.GaussianBlur(ui.image, (kernel, kernel), 0)
+    Sigma = ((kernel-1)/2 -1)*0.3+0.8
+    blurred_image = cv2.GaussianBlur(ui.image, (kernel, kernel), Sigma,Sigma)
     cv2.imshow('G Blur', blurred_image)
 
 def B_blur_popwindow():
@@ -130,7 +130,8 @@ def apply_median_blur(x):
 def sobel_x():
     if(photo1_upload):  
         gray = cv2.cvtColor(ui.image, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray, (5,5),0)
+        Sigma = ((3-1)/2 -1)*0.3+0.8
+        blur = cv2.GaussianBlur(gray, (3, 3), Sigma,Sigma)
         #create matrix that is full of zero
         x_photo=np.zeros_like(blur).astype(np.int32)
         #ready to calculate the pixal 
@@ -155,7 +156,8 @@ def sobel_x():
 def sobel_y():#same as sobel_x
     if(photo1_upload):  
         gray = cv2.cvtColor(ui.image, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray, (5,5),0)
+        Sigma = ((3-1)/2 -1)*0.3+0.8
+        blur = cv2.GaussianBlur(gray, (3, 3), Sigma,Sigma)
         y_photo=np.zeros_like(blur).astype(np.int32)
         width,height=y_photo.shape
         y_photo_filter=np.array([[1,2,1],[0,0,0],[-1,-2,-1]])
@@ -175,7 +177,8 @@ def sobel_y():#same as sobel_x
 def comb():
     if(photo1_upload): 
         gray = cv2.cvtColor(ui.image, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray, (5,5),0)
+        Sigma = ((3-1)/2 -1)*0.3+0.8
+        blur = cv2.GaussianBlur(gray, (3, 3), Sigma,Sigma)
         
         x_photo_filter=np.array([[1,0,-1],[2,0,-2],[1,0,-1]])
         x_photo=np.zeros_like(blur).astype(np.int32)
@@ -220,7 +223,8 @@ def comb():
 def gradient_angle():
     if (photo1_upload):
         gray = cv2.cvtColor(ui.image, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray, (5,5),0)
+        Sigma = ((3-1)/2 -1)*0.3+0.8
+        blur = cv2.GaussianBlur(gray, (3, 3), Sigma,Sigma)
         
         x_photo_filter=np.array([[1,0,-1],[2,0,-2],[1,0,-1]])
         y_photo_filter=np.array([[1,2,1],[0,0,0],[-1,-2,-1]])
